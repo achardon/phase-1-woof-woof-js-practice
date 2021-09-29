@@ -1,32 +1,22 @@
+const filter = document.querySelector('#good-dog-filter')
+
 function getDogs() {
     fetch('http://localhost:3000/pups')
     .then(res => res.json())
     .then(dogs => {
         dogs.forEach((dog) => {
-        //console.log(dog) 
-        const div = document.querySelector('#dog-bar')
-        const newSpan = document.createElement('span')
-        //const button = document.createElement('button')
-        //newSpan.append(button)
-        div.append(newSpan)
-        newSpan.innerText = dog.name
-        newSpan.addEventListener('click', () => {
-            getInfo(dog.id, dog.name, dog.isGoodDog, dog.image)
+        displayDogs(dog)
         })
-        })
+    })
+}
 
-        let filter = document.querySelector('#good-dog-filter')
-        filter.addEventListener('click', () => {
-            if (filter.innerText === 'Filter good dogs: ON') {
-                filter.innerText = 'Filter good dogs: OFF'
-                const spans = document.querySelectorAll('span')
-                spans.forEach(span => span.style.visibility = 'visible')
-            }
-            else {
-                filter.innerText = 'Filter good dogs: ON'
-                hideBadDogs(dogs) 
-            }
-        })
+function displayDogs(dog) {
+    const div = document.querySelector('#dog-bar')
+    const newSpan = document.createElement('span')
+    div.append(newSpan)
+    newSpan.innerText = dog.name
+    newSpan.addEventListener('click', () => {
+        getInfo(dog.id, dog.name, dog.isGoodDog, dog.image)
     })
 }
 
@@ -53,11 +43,15 @@ function getInfo(dogID, dogName, dogisGood, dogImage) {
         //debugger
         if (button.innerText === 'Good Dog!') {
             button.innerText = 'Bad Dog!'
+            patchDog(dogID, button.innerText)
+            if (filter.innerText === 'Filter good dogs: ON') {
+                hideBadDogs()
+            }
         }
         else {
             button.innerText = 'Good Dog!'
+            patchDog(dogID, button.innerText)
         }
-        patchDog(dogID, button.innerText)
     })
     document.querySelector('#dog-info').append(image, name, button)
 }
@@ -81,28 +75,29 @@ function patchDog(dogID, isGood) {
     //.then(data => console.log(data))
 }
 
-// let filter = document.querySelector('#good-dog-filter')
-// filter.addEventListener('click', () => {
-//     if (filter.innerText === 'Filter good dogs: ON') {
-//         filter.innerText = 'Filter good dogs: OFF'
-//     }
-//     else {
-//         filter.innerText = 'Filter good dogs: ON'
-//         hideBadDogs() 
-//     }
-// })
 
-function hideBadDogs(dogs) {
-    console.log(dogs)
-    dogs.forEach(dog => {
-        if (dog.isGoodDog === false) {
-            console.log('dog is bad')
-            const spans = document.querySelectorAll('span')
-            spans.forEach(span => {
-            if (span.innerText === dog.name) {
-                span.style.visibility = 'hidden'
+filter.addEventListener('click', () => {
+    if (filter.innerText === 'Filter good dogs: ON') {
+        filter.innerText = 'Filter good dogs: OFF'
+        document.querySelector('#dog-bar').innerText = ''
+        getDogs()
+    }
+    else {
+        filter.innerText = 'Filter good dogs: ON'
+        hideBadDogs() 
+    }
+})
+
+function hideBadDogs() {
+    fetch('http://localhost:3000/pups')
+    .then(res => res.json())
+    .then(dogs => {
+        document.querySelector('#dog-bar').innerText = ''
+        dogs.forEach(dog => {
+        if (dog.isGoodDog === true) {
+            //console.log(dog.name)
+            displayDogs(dog)
             }
-            })
-        }
+        })
     })
 }
